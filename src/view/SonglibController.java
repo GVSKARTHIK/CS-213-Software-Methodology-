@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -56,6 +55,7 @@ public class SonglibController {
 		//As application spins up, if List != Empty, select the first song.
 		if (!obsList.isEmpty())
 	    	  listView.getSelectionModel().select(0);
+		populateFields(listView.getSelectionModel().getSelectedItem());
 
 		
 		// Set listener for the items, to make editing easier.
@@ -66,7 +66,7 @@ public class SonglibController {
 				(obs, oldVal, newVal) -> 
 				populateFields(listView.getSelectionModel().getSelectedItem()));
 		
-		//When closing the application, write songs to file.
+		//When closing the application, write songs to file (save session).
 		mainStage.setOnCloseRequest(event -> songListFileWriter());
 		 
 		
@@ -89,7 +89,7 @@ public class SonglibController {
 			
 			if (confirmation.showAndWait().get() == ButtonType.YES) {
 				//Add song
-				listView.getItems().add(newSong);
+				obsList.add(newSong);
 				
 				//Sort List using a Comparator object.
 				if (!obsList.isEmpty()) {
@@ -184,8 +184,7 @@ public class SonglibController {
 		 int index = listView.getSelectionModel().getSelectedIndex();
 		
 		Alert confirmation = generateConfirmation("Delete");
-		Optional<ButtonType> confirm = confirmation.showAndWait();
-		if (confirm.get() == ButtonType.YES) {
+		if (confirmation.showAndWait().get() == ButtonType.YES) {
 			obsList.remove(clickedSong);
 			if (obsList.size() == 0) {
 				clearFields();
@@ -211,15 +210,12 @@ public class SonglibController {
 			errorAlert("The song list is empty");
 			return;
 		}
-		Song clickedSong = listView.getSelectionModel().getSelectedItem();
+		
 		int index = listView.getSelectionModel().getSelectedIndex();
 		
-		
-		
 		Alert confirmation = generateConfirmation("Edit");
-		Optional<ButtonType> confirm = confirmation.showAndWait();
 		
-		if (confirm.get() == ButtonType.YES) {
+		if (confirmation.showAndWait().get() == ButtonType.YES) {
 			if(!addCheck(newSong, true)) {
 				return;	
 			}
